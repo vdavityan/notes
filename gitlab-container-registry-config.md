@@ -15,9 +15,9 @@ For this walk through we are going to generate a self signed certificate on the 
 ######Generate the Key:
 
 ######RHEL & CentOS:
-'''
+```
 openssl genrsa -out "/etc/pki/tls/private/gitlab-registry.key" 4096
-'''
+```
 ######Debian & Ubuntu:
 openssl genrsa -out "/etc/ssl/private/gitlab-registry.key" 4096
 
