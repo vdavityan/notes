@@ -19,18 +19,21 @@ For this walk through we are going to generate a self signed certificate on the 
 openssl genrsa -out "/etc/pki/tls/private/gitlab-registry.key" 4096
 ```
 ######Debian & Ubuntu:
+```
 openssl genrsa -out "/etc/ssl/private/gitlab-registry.key" 4096
-
+```
 ######Generate the Certificate:
 
 ######RHEL & CentOS:
+```
 openssl req -x509 -sha512 -nodes -newkey rsa:4096 -days 730 -keyout /etc/pki/tls/private/gitlab-registry.key \ 
   -out /etc/pki/tls/certs/gitlab-registry.crt
-
+```
 ######Debian  & Ubuntu:
+```
 openssl req -x509 -sha512 -nodes -newkey rsa:4096 -days 730 -keyout /etc/ssl/private/gitlab-registry.key \
 -out /etc/ssl/certs/gitlab-registry.crt
-
+```
 
 Configuration:
 NOTICE:
@@ -38,7 +41,7 @@ This walk through assumes that Gitlab was installed using the Omnibus package. I
 then please visit http://docs.gitlab.com/ee/administration/container_registry.html for alternate instructions.
 Edit /etc/gitlab/gitlab.rb
 To configure the registry, a few options need to be set in the /etc/gitlab/gitlab.rb file. The options are as follows
-
+```
 registry_external_url 'https://registry.example.com'
 
 ################
@@ -60,7 +63,7 @@ nginx['ssl_client_certificate'] = "/etc/gitlab/ssl/ca.crt"
 registry_nginx['ssl_certificate'] = "/etc/pki/tls/certs/gitlab-registry.crt"
 registry_nginx['ssl_certificate_key'] = "/etc/pki/tls/private/gitlab-registry.key"
 registry_nginx['proxy_set_headers'] = { "Host" => "registry.example.com" }
-
+```
 
 A brief description of the option settings above are as follows:
 
@@ -75,11 +78,13 @@ registry_nginx['ssl_certificate_key']	Path to the key for the certificate that t
 registry_nginx['proxy_set_headers']	Workaround for an issue that should have been resolved in 8.10.2, but left in just to be safe
 
 Reconfigure Gitlab
+```
 gitlab-ctl reconfigure
-
+```
 Restart Gitlab
+```
 gitlab-ctl restart
-
+```
 Post Requisites:
 NOTICE:
 This step is only required if using a self signed certificate
@@ -93,31 +98,34 @@ These steps should be performed on the Docker host that will use the Gitlab Cont
 The first step is from the gitlab server, scp the certificate only.. NOT THE KEY to the docker host
 
 RHEL & CentOS:
+```
 scp /etc/pki/tls/certs/gitlab-registry.crt root@dockerhost:/tmp
-
+```
 Debian & Ubuntu:
+```
 scp /etc/ssl/certs/gitlab-registry.crt root@dockerhost:/tmp
-
+```
 2. Import the certs:
 
 RHEL &  CentOS:
-
+```
 mv /tmp/gitlab-registry.crt /etc/pki/ca-trust/source/anchors/
 update-ca-trust
-
+```
 
 Debian & Ubuntu:
-
+```
 mv /tmp/gitlab-registry.crt /usr/local/share/ca-certificates/
 update-ca-certificates
-
+```
 3.  Restart Docker:
-
+```
 systemctl restart docker.service
-
+```
 ALTERNATIVE:
 If for some reason it is undesirable to import the certificate, the docker flag DOCKER_OPTS="--insecure-registry=registry.example.com" can be added to the /etc/default/docker file, or directly to the docker daemon start script / unit file
 
 4.  Docker Login:
-
+```
 docker login registry.example.com
+```
