@@ -1,33 +1,33 @@
 # Gitlab Docker Container Registry Configuration
-
-1. Gitlab:
+######1. Gitlab:
 Gitlab is already installed via the omnibus package on either a debian/ubuntu/rhel or centos machine (bare or virtual):
 
-2. Registry resolution:
+######2. Registry resolution:
 Set a DNS entry resolving registry.yourdomain.com to the gitlab server, or set a host file entry on any docker hosts that will utilize the container registry, allowing the docker server to talk to the registry instance.
 
 Set the host file in /etc/hosts
 
   1.2.3.4     registry.example.com registry
 
-3.    Obtain or create a registry certificate:
+######3. Obtain or create a registry certificate:
 For this walk through we are going to generate a self signed certificate on the gitlab server for the container registry service to use. As a substition to this step, a certificate can be issued from a local CA, or purchased through an SSL certificate vendor.
 
-Generate the Key:
+######Generate the Key:
 
-RHEL & CentOS:
+######RHEL & CentOS:
+'''
 openssl genrsa -out "/etc/pki/tls/private/gitlab-registry.key" 4096
-
-Debian & Ubuntu:
+'''
+######Debian & Ubuntu:
 openssl genrsa -out "/etc/ssl/private/gitlab-registry.key" 4096
 
-Generate the Certificate:
+######Generate the Certificate:
 
-RHEL & CentOS:
+######RHEL & CentOS:
 openssl req -x509 -sha512 -nodes -newkey rsa:4096 -days 730 -keyout /etc/pki/tls/private/gitlab-registry.key \ 
   -out /etc/pki/tls/certs/gitlab-registry.crt
 
-Debian  & Ubuntu:
+######Debian  & Ubuntu:
 openssl req -x509 -sha512 -nodes -newkey rsa:4096 -days 730 -keyout /etc/ssl/private/gitlab-registry.key \
 -out /etc/ssl/certs/gitlab-registry.crt
 
