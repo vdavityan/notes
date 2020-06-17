@@ -1,4 +1,4 @@
-# GNS3 Installation on Linux
+# GNS3 Installation on Linux :octocat: 
 
 ## INSTALLATION FROM PACKAGES
 Ubuntu-based distributions (64-bit only)
