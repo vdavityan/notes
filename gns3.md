@@ -49,7 +49,7 @@ Finally, add your user to the following groups:
 ``` 
 ubridge libvirt kvm wireshark docker 
 ``` 
-(use “_sudo usermod -aG group user_name_” to add your user to each of those groups)
+(use “_**sudo usermod -aG group username**_” to add your user to each of those groups)
 
 Restart your user session by logging out and back in, or restarting the system.
 
