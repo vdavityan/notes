@@ -28,7 +28,8 @@ sudo apt remove docker docker-engine docker.io
 ``` 
 Install the following packages:
 ``` 
-sudo apt-get install apt-transport-https ca-certificates curl \ software-properties-common
+sudo apt-get install apt-transport-https ca-certificates curl \
+software-properties-common
 ``` 
 Import the official Docker GPG key:
 ``` 
@@ -119,7 +120,7 @@ Refresh your metadata, and ONLY install the following two packages!
 sudo apt-get update
 sudo apt install dynamips ubridge
 ``` 
-To prevent accidentally installing anything else from that repo (for now), remove or comment out those two lines in your __/etc/apt/sources.list__ file:
+To prevent accidentally installing anything else from that repo (for now), remove or comment out those two lines in your __*/etc/apt/sources.list*__ file:
 
 ``` 
 #deb http://ppa.launchpad.net/gns3/ppa/ubuntu bionic main
@@ -133,7 +134,7 @@ Add your user to the following groups:
 ``` 
 kvm libvirt docker ubridge wireshark
 ``` 
-(use “_sudo usermod -aG group your_user_” to add your user to an existing group)
+(use “_**sudo usermod -aG group your_user**_” to add your user to an existing group)
 
 Restart your user session by logging out and back in, or rebooting the system.
 
