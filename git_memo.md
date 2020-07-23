@@ -130,3 +130,5 @@
     git reset --hard <tag>
 #### Перебазирование
     git rebase master
+---
+[Использовались материалы githowto.com](https://githowto.com/ "githowto.com")
