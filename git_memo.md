@@ -79,16 +79,16 @@
     git push origin --tags
 #### Удаление
 1. Локально
-    * `git tag -d 1.0.0`
+    - `git tag -d 1.0.0`
 2. Удаленный
-    * `git push origin :refs/tags/1.0.0`
-    * `git push origin --delete 1.0.0`
+    - `git push origin :refs/tags/1.0.0`
+    - `git push origin --delete 1.0.0`
 
 
 ## Ветки
 ### Создание
-* `git branch <branch>`
-* `git branch -b <branch>` - создать и перейти
+- `git branch <branch>`
+- `git branch -b <branch>` - создать и перейти
 ### Навигация
     git checkout <branch>
 ### Слияние master с веткой dev
