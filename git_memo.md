@@ -3,14 +3,12 @@
 ## Конфигурация
 
 ### Имя и электронная почта
-
     git config --global user.name "Your Name"
     git config --global user.email "email@example.com"
 
 ### Окончания строк
 
 #### Unix/Mac
-
     git config --global core.autocrlf input
     git config --global core.safecrlf warn
 
@@ -51,6 +49,7 @@
     git log 
     git log --all - все ветки
     git log --all --graph --oneline  --decorate
+    git reflog
 
 ### Контроль отображения записей
     git log --pretty=oneline --max-count=2
@@ -62,18 +61,8 @@
     git log --pretty=format:"%h %ad | %s%d [%an]" --graph --date=short
 
 ## Индексация и коммит
-    git add file_name
-    git commit -m "Add file file_name"
-
-### Возвращать рабочий каталог к любому предыдущему состоянию.
-    git checkout <commit hash>
-
-### Вернитесь к последней версии в ветке master
-    git checkout master
-
-### Перемещение
-    git chekout HEAD~1  -  на один коммит назад
-
+    git add <file>
+    git commit -m "Add file <file>"
 
 ## Создание тегов версий
 ### Легковесный тег
@@ -90,7 +79,54 @@
     git push origin --tags
 #### Удаление
 1. Локально
-    git tag -d 1.0.0
+    * `git tag -d 1.0.0`
 2. Удаленный
-    1. git push origin :refs/tags/1.0.0
-    2.  git push origin --delete 1.0.0
+    * `git push origin :refs/tags/1.0.0`
+    * `git push origin --delete 1.0.0`
+
+
+## Ветки
+### Создание
+* `git branch <branch>`
+* `git branch -b <branch>` - создать и перейти
+### Навигация
+    git checkout <branch>
+### Слияние master с веткой dev
+    git checkout master
+    git merge dev
+### Список всех веток
+    git branch -a
+### Отслеживание удаленной ветки
+    git branch --track <branch> origin/<branch>
+
+## Отмена изменений
+
+### Измените предыдущий коммит
+    git commit --amend
+
+### Перемещение файлов
+    git mv <old file> <new file>
+
+### Возвращать рабочий каталог к любому предыдущему состоянию.
+    git checkout <commit hash>
+    git chekout HEAD~1 (на один коммит назад)
+
+### Вернитесь к последней версии в ветке master
+    git checkout master
+
+### Отмена изменений файла в рабочем каталоге
+    git checkout <file>
+
+### Отмена проиндексированных изменений    
+    git reset HEAD <file>
+    git restore --staged <file>
+
+### Отмена коммитов
+#### С сохранением истории (для публичных веток)
+    git revert HEAD
+    git revert <hash>
+#### Удаление комитов из ветки (для локальных веток)
+    git reset --hard <hash>
+    git reset --hard <tag>
+#### Перебазирование
+    git rebase master
