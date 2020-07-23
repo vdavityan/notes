@@ -65,3 +65,32 @@
     git add file_name
     git commit -m "Add file file_name"
 
+### Возвращать рабочий каталог к любому предыдущему состоянию.
+    git checkout <commit hash>
+
+### Вернитесь к последней версии в ветке master
+    git checkout master
+
+### Перемещение
+    git chekout HEAD~1  -  на один коммит назад
+
+
+## Создание тегов версий
+### Легковесный тег
+    git tag 1.0.0
+
+### Аннотируемый
+    git tag -a 1.0.0
+
+### Работа с тегами
+    git checkout 1.0.0
+    git checkout 1.0.0~1
+#### Отправить на удаленный
+    git push origin v1.0.0
+    git push origin --tags
+#### Удаление
+1. Локально
+    git tag -d 1.0.0
+2. Удаленный
+    1. git push origin :refs/tags/1.0.0
+    2.  git push origin --delete 1.0.0
