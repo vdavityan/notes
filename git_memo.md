@@ -42,7 +42,9 @@
 
     alias got='git '
     alias get='git '
-
+### Mergetool
+    git config --global merge.tool meld
+    git config --global mergetool.meld.path "C:\Program Files (x86)\Meld\Meld.exe"
 ## Инициализация, состояние, история.
     git init
     git status
@@ -96,8 +98,23 @@
     git merge dev
 ### Список всех веток
     git branch -a
+### Список удаленных веток
+    git ls-remote origin
+    git remote show origin
+
 ### Отслеживание удаленной ветки
     git branch --track <branch> origin/<branch>
+    git checkout -b <branch> origin/<branch>
+    git checkout --track origin/<branch>
+
+### Проверка слияния
+
+    git branch -v
+    git branch --merged <branch>
+    git branch --no-merged <branch>
+   
+### Удаление удаленных веток
+    git push origin --delete <branch>
 
 ## Отмена изменений
 
@@ -128,7 +145,30 @@
 #### Удаление комитов из ветки (для локальных веток)
     git reset --hard <hash>
     git reset --hard <tag>
+#### Откат к предыдущему комиту, но оставить изменения в stage
+    git reset --soft HEAD~1
 #### Перебазирование
     git rebase master
+
+## Очистка
+### Очистка unstaged
+    git clean -n - посмотреть
+    git clean -f - удалить
+
+## Отмена коммита в удаленном репозитории с последующем редактированием
+
+    1. git pull - синхронизируемся с удаленным репо
+    2. git revert <bad commit> - отменяем коммит
+    3. git push - пушим отмену
+        * если ошибка - кто-то накомитил, то надо 
+          сделать git reset HEAD~1 && git pull
+          и снова с пункта 2
+    4. git reset --hard <bad commit> - локально возвращаемся к соему коду
+    5. git reset --soft HEAD~1 - переводим в stage
+    6. git stash  - прячем изменения
+    7. git pull - синхронизируемся с удаленным репо
+    8. git stash pop - достаем свой код
+    9. edit <file> - редактируем :)
+    
 ---
-[Использовались материалы githowto.com](https://githowto.com/ "githowto.com")
+> Использовались материалы [githowto.com](https://githowto.com/ "githowto.com")
