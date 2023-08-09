@@ -1,5 +1,43 @@
 
 Dockerfile
+FROM nexus.isb/php:8.0.29-fpm
+
+WORKDIR /var/www/html/
+
+RUN \
+    sed -i '/debian-security/d' /etc/apt/sources.list \
+    && sed -i 's#deb.debian.org/debian.#nexus.isb/repository/debian-apt-proxy #g' /etc/apt/sources.list
+
+RUN \
+    apt-get update \
+    && apt-get install -y \
+    zlib1g-dev \
+    libpng-dev \
+    libxml2-dev \
+    libzip-dev \
+    libldb-dev \
+    libldap2-dev \
+    libcurl4-openssl-dev \
+    graphviz \
+    mariadb-client \
+    \
+    && docker-php-ext-install gd \
+    && docker-php-ext-install soap \
+    && docker-php-ext-install mysqli \
+    && docker-php-ext-install zip \
+    && docker-php-ext-install ldap \
+    && docker-php-ext-install curl \
+    \
+    && apt-get clean \
+    && apt-get autoremove -y \
+    && rm -rf /var/lib/apt/lists/* \
+            /var/cache/debconf/* \
+            /usr/share/doc \
+            /usr/share/man \
+            /usr/share/locale/?? \
+            /usr/share/locale/??_?? \
+    && find /var/log -type f -exec truncate --size 0 {} \;
+
 ARG MY_UID
 ARG MY_GID
 
