@@ -1,0 +1,23 @@
+
+Dockerfile
+ARG MY_UID
+ARG MY_GID
+
+RUN \
+    usermod -u $MY_UID www-data \
+    && groupmod -g $MY_GID www-data \
+    && mkdir -p data/backups \
+    && chown -R www-data:www-data data/backups
+
+
+#!/bin/bash
+
+export MY_UID=$(id -u)
+export MY_GID=$(id -g)
+
+docker compose up -d --build
+
+docker exec
+WARN[0000] The "MY_UID" variable is not set. Defaulting to a blank string.
+WARN[0000] The "MY_GID" variable is not set. Defaulting to a blank string.
+
