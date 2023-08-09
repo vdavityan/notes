@@ -9,6 +9,23 @@ RUN \
     && mkdir -p data/backups \
     && chown -R www-data:www-data data/backups
 
+compose 
+
+  itop:
+    depends_on:
+      - db
+    build:
+      context: ./itop_setup
+      args:
+        MY_UID: ${MY_UID}
+        MY_GID: ${MY_GID}
+    container_name: itop
+    restart: always
+    volumes:
+      - ./itop:/var/www/html
+      - ./itop_setup/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
+      - ./itop_setup/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+
 
 #!/bin/bash
 
