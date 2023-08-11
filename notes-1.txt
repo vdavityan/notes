@@ -1,78 +1,97 @@
+7 августа
 
-Dockerfile
-FROM nexus.isb/php:8.0.29-fpm
+написание скрипта для синхронизации данных из нетбокса
+решение проблем возникших в ходе написания
+Редактировать
+Удалить
 
-WORKDIR /var/www/html/
+DavityanVG
+Давитян Виктор Григорьевич добавил(а) комментарий - 08/авг/23 5:01 PM
+8 августа
 
-RUN \
-    sed -i '/debian-security/d' /etc/apt/sources.list \
-    && sed -i 's#deb.debian.org/debian.#nexus.isb/repository/debian-apt-proxy #g' /etc/apt/sources.list
+продолжал разработку скрипта для синхронизации данных из нетбокса
+выполнение синхронизации
+работа с ошибками
+создание конфигурации для скрипта
+рефакторинг
+Редактировать
+Удалить
 
-RUN \
-    apt-get update \
-    && apt-get install -y \
-    zlib1g-dev \
-    libpng-dev \
-    libxml2-dev \
-    libzip-dev \
-    libldb-dev \
-    libldap2-dev \
-    libcurl4-openssl-dev \
-    graphviz \
-    mariadb-client \
-    \
-    && docker-php-ext-install gd \
-    && docker-php-ext-install soap \
-    && docker-php-ext-install mysqli \
-    && docker-php-ext-install zip \
-    && docker-php-ext-install ldap \
-    && docker-php-ext-install curl \
-    \
-    && apt-get clean \
-    && apt-get autoremove -y \
-    && rm -rf /var/lib/apt/lists/* \
-            /var/cache/debconf/* \
-            /usr/share/doc \
-            /usr/share/man \
-            /usr/share/locale/?? \
-            /usr/share/locale/??_?? \
-    && find /var/log -type f -exec truncate --size 0 {} \;
+DavityanVG
+Давитян Виктор Григорьевич добавил(а) комментарий - 09/авг/23 5:50 PM
+9 августа
 
-ARG MY_UID
-ARG MY_GID
+продолжал разработку скрипта для синхронизации данных из нетбокса
+работа с ошибками
+изменена логика работы при работе с БД - теперь данные в таблице синхронизации не переписываются полностью
+рефакторинг
+начал делать отдельные источники синхронизации для серверов, виртуалок и СХД.
+Редактировать
+Удалить
 
-RUN \
-    usermod -u $MY_UID www-data \
-    && groupmod -g $MY_GID www-data \
-    && mkdir -p data/backups \
-    && chown -R www-data:www-data data/backups
+DavityanVG
+Давитян Виктор Григорьевич добавил(а) комментарий - 10/авг/23 1:30 PM - Изменен
+10 августа
 
-compose 
+Установил toolkit
+Разобрался с автоматическим созданием источников синхронизации, используя модуль для iTop base-data-collector.
+Создание нового класса
+Добавление полей в существующий класс
+Локализация названий атрибутов
+TODO: прикрутить авторизацию к toolkit
 
-  itop:
-    depends_on:
-      - db
-    build:
-      context: ./itop_setup
-      args:
-        MY_UID: ${MY_UID}
-        MY_GID: ${MY_GID}
-    container_name: itop
-    restart: always
-    volumes:
-      - ./itop:/var/www/html
-      - ./itop_setup/zz-docker.conf:/usr/local/etc/php-fpm.d/zz-docker.conf
-      - ./itop_setup/opcache.ini:/usr/local/etc/php/conf.d/opcache.ini
+ 
+
+Расположение модулей в системе
 
 
-#!/bin/bash
 
-export MY_UID=$(id -u)
-export MY_GID=$(id -g)
+ 
 
-docker compose up -d --build
+Локализация:
 
-docker exec
-WARN[0000] The "MY_UID" variable is not set. Defaulting to a blank string.
-WARN[0000] The "MY_GID" variable is not set. Defaulting to a blank string.
+Локализация осуществляется созданием и правкой файла в директории с расширением. Он может находится в корне директории с расширением или в поддиректории dictionaries.
+например для расширения sample-extension:
+файл с именем ru.dict.sample-extension.php
 
+<?php
+/**
+ * Localized data
+ *
+ * @copyright   Copyright (C) 2013 XXXXX
+ * @license     http://opensource.org/licenses/AGPL-3.0
+ */
+ 
+Dict::Add('RU RU', 'Russian', 'Русский', array(
+	// Dictionary entries go here\
+	'Class:Monitor' => 'Монитор',
+	'Class:Monitor+' => 'Устройство вывода изображения',
+	'Class:Monitor/Attribute:technology' => 'Технология',
+	'Class:Monitor/Attribute:technology+' => 'Технология для вывода изображения',
+	'Class:Monitor/Attribute:technology/Value:crt' => 'ЭЛТ',
+	'Class:Monitor/Attribute:technology/Value:lcd' => 'ЖКД',
+));
+?>
+
+ 
+
+TODO: Изучить возможность создания катомного меню в левой части
+
+Редактировать
+Удалить
+
+DavityanVG
+Давитян Виктор Григорьевич добавил(а) комментарий - 10/авг/23 6:33 PM
+TODO: конфигурирование полей через UI силами админа (без инструментов разработки)
+
+Редактировать
+Удалить
+
+DavityanVG
+Давитян Виктор Григорьевич добавил(а) комментарий - 11/авг/23 1:10 PM
+11  августа
+
+работа с ошибкой 
+
+
+Так же появилась ошибка нехватки памяти при синхронизации с ЛДАП.
