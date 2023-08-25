@@ -1,1 +1,12 @@
+[mysqld]
+innodb_buffer_pool_size = 512M
+query_cache_size = 32M
+query_cache_limit = 1M
+
+innodb_default_row_format = DYNAMIC
+innodb_large_prefix = true
+
+; max_allowed_packet : should be set to a value bigger than upload_max_filesize in php.ini
+max_allowed_packet = 128M
+
 
