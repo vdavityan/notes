@@ -1,47 +1,18 @@
 ---
+- include_tasks: "deploy-by-git.yaml"
 
-itop_app_project_name: project_name
+- include_tasks: "deploy-dirs.yml"
+  with_items: "{{ itop_app_dirs }}"
 
-itop_app_iserver_url: url
-itop_app_iserver_user: user
-itop_app_iserver_pass: pass
+- include_tasks: "deploy-templates.yaml"
+  with_items: "{{ itop_app_templates }}"
 
-itop_project_owner: deploy_user
-itop_project_group: deploy_user
+- include_tasks: "deploy-commands.yaml"
+  with_items: "{{ itop_app_commands }}"
 
-itop_app_git_url: url
-itop_app_git_commit: develop
+- include_tasks: "set_install_mode.yaml"
 
-itop_app_root: /opt/app/itop
+- include_tasks: "deploy-config.yaml"
 
-itop_app_install_mode: "install"
-
-# SMTP settings
-itop_app_email_transport_smtp_host: smtp.host
-itop_app_email_transport_smtp_password: smtp_password
-itop_app_email_transport_smtp_port: 25
-itop_app_email_transport_smtp_username: smtp_username
-itop_app_email_default_sender_address: sender@email.org
-itop_app_email_default_sender_label: iTop
-
-itop_app_app_templates: []
-# - src: "{{ ansible_root_dir }}templates/{{ itop_app_project_name }}/params.local.xml.j2"
-#   dst: "{{ itop_app_app_root }}/conf/params.local.xml"
-# - src: "{{ ansible_root_dir }}templates/{{ itop_app_project_name }}/env.j2"
-#   dst: "{{ itop_app_app_root }}/.env"
-
-itop_app_app_commands: []
-# - name: Fix permission
-#   cmd: "chown -R {{ itop_app_project_owner }}:{{ itop_app_project_group }} {{ itop_app_app_root }}"
-#   chdir: "{{ itop_app_app_root }}"
-#   user: root
-#   once: yes
-
-itop_app_app_cron_tasks: []
-# - name: data-collector-base tasks
-#   hour: "*"
-#   minute: "*/15"
-#   job: "/usr/bin/flock -xn /var/tmp/data-collector-base.lock -c '/bin/bash {{ itop_app_app_root }}/collect.sh >>/var/tmp/data-collector-base.log 2>&1'"
-#   user: "{{ itop_app_project_owner }}"
-#   state: present
-
+- include_tasks: "deploy-cron.yaml"
+  with_items: "{{ itop_app_cron_tasks }}"
