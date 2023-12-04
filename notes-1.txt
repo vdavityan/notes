@@ -1,18 +1,163 @@
+--- git
+- name: Add safe directory
+  community.general.git_config:
+    name: safe.directory
+    scope: global
+    value: "{{ itop_app_root }}"
+
+- name: deploy via git
+  ansible.builtin.git:
+    repo: "{{ itop_app_git_url }}"
+    dest: "{{ itop_app_root }}"
+    version: "{{ itop_app_git_commit }}"
+    accept_hostkey: yes
+    force: yes
+
+- name: disable git file mode check
+  ansible.builtin.git_config:
+    repo: "{{ itop_app_root }}"
+    name: core.fileMode
+    scope: local
+    value: "false"
+
+
+--- command
+
+- debug:
+    msg: "run command: {{ item.cmd }}"
+
+- name: run command
+  block:
+    - command: "{{ item.cmd }}"
+      args:
+        chdir: "{{ item.chdir }}"
+      environment: "{{ item.environment|d({}) }}"
+      register: cmd
+      become: yes
+      become_user: "{{ item.user }}"
+
+  rescue:
+    - fail: msg="failed command"
+
+  always:
+    - debug: msg="{{ cmd.stdout_lines }}"
+
+  run_once: "{{ item.once|bool }}"
+
+--- config
+
+- name: Copy Combodo config file into place
+  ansible.builtin.template:
+    src: "{{ ansible_root_dir }}templates/{{ itop_project_name }}/config-itop.php.j2"
+    dest: "{{ itop_app_root }}/conf/production/config-itop.php"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0640"
+
+- name: Copy Combodo preseed script into place
+  ansible.builtin.copy:
+    src: "{{ ansible_root_dir }}files/{{ itop_project_name }}/unattended_install.php"
+    dest: "{{ itop_app_root }}/data/unattended_install.php"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0755"
+
+- name: Upload preseed configuration
+  ansible.builtin.template:
+    src: "{{ ansible_root_dir }}templates/{{ itop_project_name }}/default-params.xml.j2"
+    dest: "{{ itop_app_root }}/data/default-params.xml"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0600"
+
+- block:
+    - name: Run the preseed operation (unattended install)
+      ansible.builtin.command:
+        argv:
+          - "php"
+          - "{{ itop_app_root }}/data/unattended_install.php"
+          - " {{ itop_app_root }}/data/default-params.xml"
+        chdir: "{{ itop_app_root }}/data"
+      become: true
+      become_user: "{{ itop_project_owner }}"
+      register: preseed_out
+      changed_when: false
+  rescue:
+    - fail: msg="failed command"
+  always:
+    - debug: msg="{{ preseed_out.stdout_lines }}"
+
+- name: Add REST Role to admin and other custom stuff
+  community.mysql.mysql_query:
+    login_user: "{{ itop_mysql_user }}"
+    login_password: "{{ itop_mysql_pass }}"
+    login_db: "{{ itop_mysql_db_name }}"
+    query:
+      - INSERT INTO priv_urp_userprofile (id, userid, profileid, description) VALUES (2, 1, 1024, "Automaticly added during install process")
+      - INSERT INTO organization ( id, name, code, parent_id_left, parent_id_right) VALUES (2, "OTP Bank", "OBRu", 3, 4)
+    single_transaction: true
+  when: itop_app_install_mode == "install"
+
+
+
+--- cron
+
+- name: create cron jobs
+  cron:
+    name: "{{ item.name }}"
+    day: "{{ item.day|default(omit) }}"
+    hour: "{{ item.hour|default(omit) }}"
+    minute: "{{ item.minute }}"
+    job: "{{ item.job }}"
+    user: "{{ item.user }}"
+    state: "{{ item.state }}"
+
+
 ---
-- include_tasks: "deploy-by-git.yaml"
 
-- include_tasks: "deploy-dirs.yml"
-  with_items: "{{ itop_app_dirs }}"
+- name: create dirs
+  file:
+    dest: "{{ item.dst }}"
+    state: directory
+    owner: "{{ item.owner|d(omit) }}"
+    group: "{{ item.group|d(omit) }}"
+    mode: "{{ item.mode|d(omit) }}"
 
-- include_tasks: "deploy-templates.yaml"
-  with_items: "{{ itop_app_templates }}"
+---
 
-- include_tasks: "deploy-commands.yaml"
-  with_items: "{{ itop_app_commands }}"
+- name: create template
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dst }}"
+    owner: "{{ item.owner|d(omit) }}"
+    group: "{{ item.group|d(omit) }}"
+    mode: "{{ item.mode|d(omit) }}"
 
-- include_tasks: "set_install_mode.yaml"
 
-- include_tasks: "deploy-config.yaml"
+--- install mode
 
-- include_tasks: "deploy-cron.yaml"
-  with_items: "{{ itop_app_cron_tasks }}"
+---
+- name: Check mysql database exist
+  community.mysql.mysql_query:
+    login_user: "{{ itop_mysql_user }}"
+    login_password: "{{ itop_mysql_pass }}"
+    login_db: "{{ itop_mysql_db_name }}"
+    query:
+      - SELECT * FROM priv_urp_userprofile WHERE id=2 AND userid=1
+  register: check_out
+  ignore_errors: true
+
+- name: Print return information from the previous task
+  ansible.builtin.debug:
+    msg:
+      - "{{ check_out.failed }}"
+
+- name: Set install mode
+  set_fact:
+    itop_app_install_mode: "upgrade"
+  when: check_out.failed == false
+
+- name: Print install mode
+  ansible.builtin.debug:
+    msg:
+      - "{{ itop_app_install_mode }}"
