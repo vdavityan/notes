@@ -161,3 +161,73 @@
   ansible.builtin.debug:
     msg:
       - "{{ itop_app_install_mode }}"
+
+--- config
+---
+itop_project_name: "{{ project_name }}"
+itop_app_name: "{{ itop_project_name }}"
+
+itop_project_owner: "{{ deploy_user }}"
+itop_project_group: "{{ deploy_user }}"
+
+itop_app_git_use: yes
+itop_app_git_url: "ssh://bitbucket.isb:443/itop/itop.git"
+itop_app_git_commit: "{{ git_branch }}"
+
+itop_app_root: "/opt/app/{{ itop_project_name }}-{{ environment_name }}"
+itop_app_version: "{{ lookup('env', 'TAG') or 'latest' }}"
+
+itop_app_email_transport_smtp_host: "{{ project_smtp_host }}"
+itop_app_email_transport_smtp_port: "{{ project_smtp_port }}"
+itop_app_email_transport_smtp_username: "{{ project_smtp_username }}"
+itop_app_email_transport_smtp_password: "{{ project_smtp_password }}"
+itop_app_email_default_sender_address: "{{ project_smtp_sender_address }}"
+itop_app_email_default_sender_label: "{{ project_smtp_sender_label }}"
+
+itop_app_templates:
+  - src: "{{ ansible_root_dir }}templates/{{ itop_project_name }}/itop-cron.params.j2"
+    dst: "{{ itop_app_root }}/data/itop-cron.params"
+
+itop_app_commands:
+  - name: Fix permission
+    cmd: "chown -R {{ itop_project_owner }}:{{ itop_project_group }} {{ itop_app_root }}"
+    chdir: "{{ itop_app_root }}"
+    user: root
+    once: yes
+  - name: Change nginx tmp directory permission
+    cmd: "chown -R {{ itop_project_owner }}:{{ itop_project_group }} /var/lib/nginx"
+    chdir: "{{ itop_app_root }}"
+    user: root
+    once: yes
+
+itop_app_dirs:
+  - dst: "{{ itop_app_root }}/data/backups"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0755"
+  - dst: "{{ itop_app_root }}/conf/production"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0755"
+  - dst: "/var/log/itop"
+    owner: "{{ itop_project_owner }}"
+    group: "{{ itop_project_group }}"
+    mode: "0755"
+
+itop_app_cron_tasks:
+  - name: cron tasks
+    hour: "*"
+    minute: "*/1"
+    job: >-
+      /usr/bin/flock
+      -xn /var/tmp/itop-cron.lock
+      -c '/usr/bin/php {{ itop_app_root }}/webservices/cron.php
+      --param_file={{ itop_app_root }}/data/itop-cron.params
+      >>/var/log/itop/itop-cron.log 2>&1'
+    user: "{{ itop_project_owner }}"
+    state: present
+
+itop_app_nginx_use: yes
+itop_app_nginx_service_name: nginx
+itop_app_php_fpm_use: yes
+itop_app_php_fpm_service_name: php-fpm
