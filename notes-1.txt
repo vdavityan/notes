@@ -1,2 +1,2 @@
-<previous_configuration_file>{{ itop_app_root }}/conf/production/config-itop.php</previous_configuration_file>
-<mode>{{ itop_app_install_mode }}</mode>
+
+SELECT User AS u JOIN URP_UserProfile AS up ON up.userid = u.id JOIN URP_Profiles AS p ON up.profileid = p.id WHERE p.name='Default' AND u.login='DavityanVG'
