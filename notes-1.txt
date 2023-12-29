@@ -1,2 +1,1 @@
-
-SELECT User AS u JOIN URP_UserProfile AS up ON up.userid = u.id JOIN URP_Profiles AS p ON up.profileid = p.id WHERE p.name='Default' AND u.login='DavityanVG'
+SELECT User AS u JOIN URP_UserProfile AS up ON up.userid = u.id JOIN URP_Profiles AS p ON up.profileid = p.id WHERE p.name='Default' AND u.login=''
